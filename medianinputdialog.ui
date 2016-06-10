@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Write next number:</string>
+        <string>Enter next number and push 'Accept value'</string>
        </property>
       </widget>
      </item>

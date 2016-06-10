@@ -5,6 +5,14 @@
 Calculator::Calculator(QObject *parent) : QObject(parent)
 {
     this->clearTriggered();
+    this->operationNameDict[ADD] = "Addition";
+    this->operationNameDict[SUBTRACT] = "Subtraction";
+    this->operationNameDict[MULTIPLY] = "Multiplication";
+    this->operationNameDict[DIVIDE] = "Division";
+    this->operationNameDict[NEGATE] = "Negation";
+    this->operationNameDict[SQRT] = "Square root";
+    this->operationNameDict[FIB] = "Fibonacci";
+    this->operationNameDict[MEDIAN] = "Median";
 }
 
 void Calculator::accumulate(int digit)
@@ -157,16 +165,26 @@ template <typename T> T Calculator::median(QList<T> argList)
     else return(argList[(len-1)/2]);
 }
 
- QString Calculator::generateLogMessage(double larg, double rarg, Operation operation, double result)
+QString Calculator::generateLogMessage(double larg, double rarg, Operation operation, double result)
  {
     QString message = QString::number(larg);
     message.append(QString("; "));
     message.append(QString::number(rarg));
     message.append(QString("; "));
-    message.append(QString("Op"));
+    message.append(this->operationNameDict[operation]);
     message.append(QString("; "));
     message.append(QString::number(result));
     message.append(QString("\n"));
     return message;
  }
 
+QString Calculator::generateLogMessage(double arg, Operation operation, double result)
+{
+    QString message = QString::number(arg);
+    message.append(QString("; "));
+    message.append(this->operationNameDict[operation]);
+    message.append(QString("; "));
+    message.append(QString::number(result));
+    message.append(QString("\n"));
+    return message;
+}

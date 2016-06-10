@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QMap>
 
 class Calculator : public QObject
 {
@@ -12,7 +13,8 @@ class Calculator : public QObject
 public:
     explicit Calculator(QObject *parent = 0);
     enum CalcState {ERROR, ACCUMULATE, RESULT, HOLD};
-    enum Operation {NOOP, ADD, SUBTRACT, MULTIPLY, DIVIDE, NEGATE, SQRT, FIB};
+    enum Operation {NOOP, ADD, SUBTRACT, MULTIPLY, DIVIDE, NEGATE, SQRT, FIB, MEDIAN};
+    QMap<Operation, QString> operationNameDict;
     void accumulate(int);
 
 private:
