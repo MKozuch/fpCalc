@@ -31,14 +31,14 @@
     <item row="1" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="medianBtn">
         <property name="text">
          <string>Median</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="fibBtn">
         <property name="text">
          <string>Fib</string>
         </property>

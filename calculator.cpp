@@ -1,11 +1,10 @@
 #include "calculator.h"
 #include <math.h>
+#include <algorithm>
 
 Calculator::Calculator(QObject *parent) : QObject(parent)
 {
-    this->yRegister = 0;
-    this->xRegister = 0;
-    this->currentState = ACCUMULATE;
+    this->clearTriggered();
 }
 
 void Calculator::accumulate(int digit)
@@ -37,17 +36,28 @@ void Calculator::calculate(){
     case(SUBTRACT):
         xRegister = this->yRegister - this->xRegister;
         break;
+    case(MULTIPLY):
+        xRegister = this->yRegister * this->xRegister;
+        break;
+    case(DIVIDE):
+        xRegister = this->yRegister / this->xRegister;
+        break;
+    case(FIB):
+        xRegister = this->fib(int(this->xRegister));
+        break;
     default:
         break;
     }
     this->currentState = HOLD;
-
+    this->selectedOperation = NOOP;
+    this->yRegisterFull = false;
+    this->refreshDisp();
 }
 
 void Calculator::digitEntered(int digit)
 {
     this->accumulate(digit);
-    emit(this->display(this->xRegister));
+    this->refreshDisp();
 }
 
 void Calculator::commaEntered()
@@ -55,7 +65,7 @@ void Calculator::commaEntered()
     this->isOperandDecimal=true;
 }
 
-void Calculator::clearClicked()
+void Calculator::clearTriggered()
 {
     this->currentState = ACCUMULATE;
     this->xRegister = 0;
@@ -63,24 +73,100 @@ void Calculator::clearClicked()
     this->yRegisterFull = false;
     this->isOperandDecimal = false;
     this->selectedOperation = NOOP;
-    emit(this->display(0));
+    this->refreshDisp();
 }
 
 void Calculator::negateClicked()
 {
     this->xRegister = -this->xRegister;
-    emit(this->display(xRegister));
+    this->refreshDisp();
 }
 
 void Calculator::sqrtClicked()
 {
-    this->xRegister = std::sqrt(this->xRegister);
-    this->currentState = HOLD;
-    emit(this->display(xRegister));
+    if(this->xRegister<0) emit(this->errorSignal("Cannot sqrt a negative number"));
+    else{
+        this->xRegister = std::sqrt(this->xRegister);
+        this->currentState = HOLD;
+    }
+    this->refreshDisp();
+}
+
+void Calculator::fibClicked()
+{
+    if(this->xRegister<0) emit(this->errorSignal("Cannot fib a negative number"));
+    else if(this->xRegister - std::floor(this->xRegister)) emit(this->errorSignal("Cannot fib a non-integer"));
+    else{
+        this->xRegister = this->fib((int)xRegister);
+        currentState = HOLD;
+    }
+    this->refreshDisp();
 }
 
 void Calculator::binaryOperatorClicked(int op)
 {
     Operation operation = (Operation)op;
-    emit(this->errorSignal(QString("Warning: major fuckup")));
+    this->selectedOperation = operation;
+    if(this->yRegisterFull){
+        //this->calculate();
+    }
+    else{
+        this->xRegisterPush();
+    }
+    //this->refreshDisp();
 }
+
+void Calculator::equalSignTriggered()
+{
+    this->calculate();
+    this->refreshDisp();
+}
+
+void Calculator::refreshDisp()
+{
+    emit(this->display(xRegister));
+}
+
+void Calculator::xRegisterPush()
+{
+    this->yRegister = this->xRegister;
+    this->yRegisterFull = true;
+    this->xRegister = 0;
+    this->isOperandDecimal = false;
+}
+
+long Calculator::fib(int i){
+    if(i==0) return 0;
+    else if(i==1) return 1;
+    else return fib(i-2)+fib(i-1);
+}
+
+void Calculator::medianTriggered(QList<double> valList)
+{
+    if(valList.length()==0) emit(this->errorSignal("Must be a non-zero length list"));
+    else this->xRegister = median(valList);
+    this->refreshDisp();
+}
+
+template <typename T> T Calculator::median(QList<T> argList)
+{
+    std::sort(argList.begin(), argList.end());
+    auto len = argList.length();
+    if (len == 0) return 0;
+    else if(len%2 == 0) return((argList[len/2-1] + argList[(len/2)])/2);
+    else return(argList[(len-1)/2]);
+}
+
+ QString Calculator::generateLogMessage(double larg, double rarg, Operation operation, double result)
+ {
+    QString message = QString::number(larg);
+    message.append(QString("; "));
+    message.append(QString::number(rarg));
+    message.append(QString("; "));
+    message.append(QString("Op"));
+    message.append(QString("; "));
+    message.append(QString::number(result));
+    message.append(QString("\n"));
+    return message;
+ }
+

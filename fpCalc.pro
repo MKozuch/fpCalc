@@ -5,6 +5,10 @@
 #-------------------------------------------------
 
 QT       += core gui
+
+#QT += testlib
+#CONFIG += testcase
+
 CONFIG += static
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -15,9 +19,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-        calculator.cpp
+        calculator.cpp \
+        #testof_calculator.cpp
+    medianinputdialog.cpp
 
 HEADERS  += mainwindow.h \
-        calculator.h
+        calculator.h \
+    medianinputdialog.h
+        #testof_calculator.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    medianinputdialog.ui

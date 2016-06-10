@@ -3,8 +3,10 @@
 
 #include <QMainWindow>
 #include <QSignalMapper>
+#include <QList>
 
 #include "calculator.h"
+#include "medianinputdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,17 +25,20 @@ private:
     Calculator *calc;
     QSignalMapper numericBtnSignalMapper;
     QSignalMapper unaryOperationsSignalMapper;
-    QSignalMapper binaryOperationsSignalMapper;
+    QSignalMapper operationSignalMapper;
 
 
 private slots:
     void on_actionExit_triggered();
+    void on_actionAbout_triggered();
     void on_updateDisplay(float);
     void on_calcError(QString);
+    void on_medianBtn_clicked();
 
 signals:
-    digitBtnClicked(int);
-    commaBtnClicked();
+    void digitBtnClicked(int);
+    void commaBtnClicked();
+    void medianListReady(QList<double>);
 };
 
 #endif // MAINWINDOW_H

@@ -2,16 +2,21 @@
 #define TESTOF_CALCULATOR_H
 
 #include <QObject>
+#include <QtTest/QtTest>
 
-class testOf_calculator : public QObject
+#include "calculator.h"
+
+class TestOf_calculator : public QObject
 {
     Q_OBJECT
-public:
-    explicit testOf_calculator(QObject *parent = 0);
 
-signals:
+private:
+    Calculator calc;
 
-public slots:
+private slots:
+    void initTestCase();
+    void testOf_fib();
+    void cleanupTestCase();
 };
 
 #endif // TESTOF_CALCULATOR_H

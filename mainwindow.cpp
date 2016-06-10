@@ -16,8 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->calc = new Calculator(this);
 
-    //this->ui->display->display(QString("Error"));
-
+    // connect MainWindow signals to Calculator slots
     QWidget *digitBtnArr[] = {this->ui->digit0Btn,
                              this->ui->digit1Btn,
                              this->ui->digit2Btn,
@@ -36,22 +35,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this->ui->negativeBtn, SIGNAL(clicked()), this->calc, SLOT(negateClicked()));
     connect(this->ui->sqrtBtn, SIGNAL(clicked()), this->calc, SLOT(sqrtClicked()));
-    connect(this->ui->commaBtn, SIGNAL(clicked()), this->calc, SLOT(commaClicked()));
-    connect(this->ui->clearBtn, SIGNAL(clicked()), this->calc, SLOT(clearClicked()));
+    connect(this->ui->commaBtn, SIGNAL(clicked()), this->calc, SLOT(commaEntered()));
+    connect(this->ui->clearBtn, SIGNAL(clicked()), this->calc, SLOT(clearTriggered()));
+    connect(this->ui->fibBtn, SIGNAL(clicked()), this->calc, SLOT(fibClicked()));
 
-    connect(this->ui->addBtn, SIGNAL(clicked()), &this->binaryOperationsSignalMapper, SLOT(map()));
-    connect(this->ui->subtractBtn, SIGNAL(clicked()), &this->binaryOperationsSignalMapper, SLOT(map()));
-    connect(this->ui->multiplyBtn, SIGNAL(clicked()), &this->binaryOperationsSignalMapper, SLOT(map()));
-    connect(this->ui->divideBtn, SIGNAL(clicked()), &this->binaryOperationsSignalMapper, SLOT(map()));
+    connect(this->ui->addBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
+    connect(this->ui->subtractBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
+    connect(this->ui->multiplyBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
+    connect(this->ui->divideBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
+    //connect(this->ui->fibBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
 
-    this->binaryOperationsSignalMapper.setMapping(this->ui->addBtn, Calculator::ADD);
-    this->binaryOperationsSignalMapper.setMapping(this->ui->subtractBtn, Calculator::SUBTRACT);
-    this->binaryOperationsSignalMapper.setMapping(this->ui->multiplyBtn, Calculator::MULTIPLY);
-    this->binaryOperationsSignalMapper.setMapping(this->ui->divideBtn, Calculator::DIVIDE);
-    connect(&this->binaryOperationsSignalMapper, SIGNAL(mapped(int)),
-            this->calc, SLOT(binaryOperatorClicked(int)));
+    this->operationSignalMapper.setMapping(this->ui->addBtn, Calculator::ADD);
+    this->operationSignalMapper.setMapping(this->ui->subtractBtn, Calculator::SUBTRACT);
+    this->operationSignalMapper.setMapping(this->ui->multiplyBtn, Calculator::MULTIPLY);
+    this->operationSignalMapper.setMapping(this->ui->divideBtn, Calculator::DIVIDE);
+    //this->operationSignalMapper.setMapping(this->ui->fibBtn, Calculator::FIB);
+    connect(&this->operationSignalMapper, SIGNAL(mapped(int)), this->calc, SLOT(binaryOperatorClicked(int)));
 
+    connect(this->ui->equalBtn, SIGNAL(clicked()), this->calc, SLOT(equalSignTriggered()));
 
+    connect(this, SIGNAL(medianListReady(QList<double>)), this->calc, SLOT(medianTriggered(QList<double>)));
+
+    // connect calculator signals to MainWindow slots
     connect(this->calc, SIGNAL(display(float)), this, SLOT(on_updateDisplay(float)));
     connect(this->calc, SIGNAL(errorSignal(QString)), this, SLOT(on_calcError(QString)));
 }
@@ -68,9 +73,14 @@ void MainWindow::on_actionExit_triggered()
     QApplication::quit();
 }
 
-void MainWindow::on_updateDisplay(float kk)
+void MainWindow::on_actionAbout_triggered()
 {
-    this->ui->display->display(kk);
+    QMessageBox::information(this, QString("About"), "fpCalc by: MKozuch");
+}
+
+void MainWindow::on_updateDisplay(float num)
+{
+    this->ui->display->display(num);
 }
 
 void MainWindow::on_calcError(QString errorMsg)
@@ -80,3 +90,11 @@ void MainWindow::on_calcError(QString errorMsg)
 
 }
 
+void MainWindow::on_medianBtn_clicked()
+{
+    auto medianDialog = new MedianInputDialog(this);
+    if (medianDialog->exec()){
+        emit(this->medianListReady(medianDialog->values));
+    }
+    delete medianDialog;
+}

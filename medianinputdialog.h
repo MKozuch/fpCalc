@@ -2,6 +2,7 @@
 #define MEDIANINPUTDIALOG_H
 
 #include <QDialog>
+#include <QList>
 
 namespace Ui {
 class MedianInputDialog;
@@ -14,9 +15,17 @@ class MedianInputDialog : public QDialog
 public:
     explicit MedianInputDialog(QWidget *parent = 0);
     ~MedianInputDialog();
+    QList<double> values;
+
 
 private:
     Ui::MedianInputDialog *ui;
+
+private slots:
+    void on_acceptBtn_clicked();
+
+signals:
+
 };
 
 #endif // MEDIANINPUTDIALOG_H
