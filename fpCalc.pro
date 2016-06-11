@@ -21,11 +21,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
         calculator.cpp \
         #testof_calculator.cpp
-        medianinputdialog.cpp
+        medianinputdialog.cpp \
+        operationlogger.cpp
 
 HEADERS  += mainwindow.h \
         calculator.h \
-        medianinputdialog.h
+        medianinputdialog.h \
+        operationlogger.h
         #testof_calculator.h
 
 FORMS    += mainwindow.ui \

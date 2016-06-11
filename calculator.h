@@ -19,23 +19,21 @@ public:
 
 private:
     friend class TestOf_calculator;
-    double yRegister;
-    double xRegister;
+    double yRegister; // this variable holds left operand value
+    double xRegister; // this variable holds display contents and right operand
     CalcState currentState;
-    bool isOperandDecimal;
+    bool isOperandDecimal; // is true when variable in xRegister has decimal part
     bool yRegisterFull;
     enum Operation selectedOperation;
     void refreshDisp();
     void calculate();
     long fib(int);
-    void xRegisterPush();
+    void xRegisterPush(); // push contents of register X to register Y, clear register X
     QString generateLogMessage(double, double, Operation, double);
     QString generateLogMessage(double, Operation, double);
     template <typename T> T median(QList<T>);
 
-
 signals:
-    void resultReady();
     void display(float);
     void errorSignal(QString);
     void logSignal(QString);
@@ -47,11 +45,9 @@ public slots:
     void negateClicked();
     void sqrtClicked();
     void fibClicked();
-//    void unaryOperatorClicked(UnaryOperations);
-    void binaryOperatorClicked(int);
+    void binaryOperatorClicked(int); // services all binary operations
     void equalSignTriggered();
     void medianTriggered(QList<double>);
-
 };
 
 #endif // CALCULATOR_H

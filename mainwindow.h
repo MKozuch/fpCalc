@@ -7,6 +7,7 @@
 
 #include "calculator.h"
 #include "medianinputdialog.h"
+#include "operationlogger.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,10 +24,10 @@ public:
 private:
     Ui::MainWindow *ui;
     Calculator *calc;
+    OperationLogger *logger;
     QSignalMapper numericBtnSignalMapper;
     QSignalMapper unaryOperationsSignalMapper;
     QSignalMapper operationSignalMapper;
-
 
 private slots:
     void on_actionExit_triggered();
@@ -34,6 +35,8 @@ private slots:
     void on_updateDisplay(float);
     void on_calcError(QString);
     void on_medianBtn_clicked();
+    void on_actionHelp_triggered();
+    void on_actionOpen_history_triggered();
 
 signals:
     void digitBtnClicked(int);

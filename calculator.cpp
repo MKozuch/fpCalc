@@ -37,6 +37,9 @@ void Calculator::accumulate(int digit)
 }
 
 void Calculator::calculate(){
+    auto loperand = yRegister;
+    auto roperand = xRegister;
+
     switch(this->selectedOperation){
     case(ADD):
         xRegister = this->xRegister + this->yRegister;
@@ -48,7 +51,11 @@ void Calculator::calculate(){
         xRegister = this->yRegister * this->xRegister;
         break;
     case(DIVIDE):
-        xRegister = this->yRegister / this->xRegister;
+        if (this->xRegister == 0){
+            emit(this->errorSignal("Cannot divide by 0"));
+            return;
+        }
+        else xRegister = this->yRegister / this->xRegister;
         break;
     case(FIB):
         xRegister = this->fib(int(this->xRegister));
@@ -56,6 +63,7 @@ void Calculator::calculate(){
     default:
         break;
     }
+    emit(this->logSignal(this->generateLogMessage(loperand, roperand, this->selectedOperation, this->xRegister)));
     this->currentState = HOLD;
     this->selectedOperation = NOOP;
     this->yRegisterFull = false;
@@ -94,7 +102,9 @@ void Calculator::sqrtClicked()
 {
     if(this->xRegister<0) emit(this->errorSignal("Cannot sqrt a negative number"));
     else{
+        auto operand = xRegister;
         this->xRegister = std::sqrt(this->xRegister);
+        emit(this->logSignal(this->generateLogMessage(operand, SQRT, this->xRegister)));
         this->currentState = HOLD;
     }
     this->refreshDisp();
@@ -105,7 +115,9 @@ void Calculator::fibClicked()
     if(this->xRegister<0) emit(this->errorSignal("Cannot fib a negative number"));
     else if(this->xRegister - std::floor(this->xRegister)) emit(this->errorSignal("Cannot fib a non-integer"));
     else{
+        auto operand = this->xRegister;
         this->xRegister = this->fib((int)xRegister);
+        emit(this->logSignal(this->generateLogMessage(operand, FIB, this->xRegister)));
         currentState = HOLD;
     }
     this->refreshDisp();
@@ -115,13 +127,7 @@ void Calculator::binaryOperatorClicked(int op)
 {
     Operation operation = (Operation)op;
     this->selectedOperation = operation;
-    if(this->yRegisterFull){
-        //this->calculate();
-    }
-    else{
-        this->xRegisterPush();
-    }
-    //this->refreshDisp();
+    if(!this->yRegisterFull) this->xRegisterPush();
 }
 
 void Calculator::equalSignTriggered()
@@ -174,7 +180,7 @@ QString Calculator::generateLogMessage(double larg, double rarg, Operation opera
     message.append(this->operationNameDict[operation]);
     message.append(QString("; "));
     message.append(QString::number(result));
-    message.append(QString("\n"));
+    message.append(QString(";"));
     return message;
  }
 
@@ -185,6 +191,6 @@ QString Calculator::generateLogMessage(double arg, Operation operation, double r
     message.append(this->operationNameDict[operation]);
     message.append(QString("; "));
     message.append(QString::number(result));
-    message.append(QString("\n"));
+    message.append(QString(";"));
     return message;
 }

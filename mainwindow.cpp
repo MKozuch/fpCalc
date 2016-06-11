@@ -3,11 +3,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "operationlogger.h"
 #include "calculator.h"
 
 #include <QString>
 #include <QMessageBox>
-
+#include <QDesktopServices>
+#include <QUrl>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,8 +17,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->calc = new Calculator(this);
+    this->logger = new OperationLogger(this);
 
     // connect MainWindow signals to Calculator slots
+    // signals from all digit buttons are bundled together using signal mapper to be serviced via single slot in Calculator class
     QWidget *digitBtnArr[] = {this->ui->digit0Btn,
                              this->ui->digit1Btn,
                              this->ui->digit2Btn,
@@ -38,29 +42,26 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->ui->commaBtn, SIGNAL(clicked()), this->calc, SLOT(commaEntered()));
     connect(this->ui->clearBtn, SIGNAL(clicked()), this->calc, SLOT(clearTriggered()));
     connect(this->ui->fibBtn, SIGNAL(clicked()), this->calc, SLOT(fibClicked()));
+    connect(this->ui->equalBtn, SIGNAL(clicked()), this->calc, SLOT(equalSignTriggered()));
+    connect(this, SIGNAL(medianListReady(QList<double>)), this->calc, SLOT(medianTriggered(QList<double>)));
 
+    // bundle together signals form binary operators buttons
     connect(this->ui->addBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
     connect(this->ui->subtractBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
     connect(this->ui->multiplyBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
     connect(this->ui->divideBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
-    //connect(this->ui->fibBtn, SIGNAL(clicked()), &this->operationSignalMapper, SLOT(map()));
-
     this->operationSignalMapper.setMapping(this->ui->addBtn, Calculator::ADD);
     this->operationSignalMapper.setMapping(this->ui->subtractBtn, Calculator::SUBTRACT);
     this->operationSignalMapper.setMapping(this->ui->multiplyBtn, Calculator::MULTIPLY);
     this->operationSignalMapper.setMapping(this->ui->divideBtn, Calculator::DIVIDE);
-    //this->operationSignalMapper.setMapping(this->ui->fibBtn, Calculator::FIB);
     connect(&this->operationSignalMapper, SIGNAL(mapped(int)), this->calc, SLOT(binaryOperatorClicked(int)));
-
-    connect(this->ui->equalBtn, SIGNAL(clicked()), this->calc, SLOT(equalSignTriggered()));
-
-    connect(this, SIGNAL(medianListReady(QList<double>)), this->calc, SLOT(medianTriggered(QList<double>)));
 
     // connect calculator signals to MainWindow slots
     connect(this->calc, SIGNAL(display(float)), this, SLOT(on_updateDisplay(float)));
     connect(this->calc, SIGNAL(errorSignal(QString)), this, SLOT(on_calcError(QString)));
-}
 
+    connect(this->calc, SIGNAL(logSignal(QString)), this->logger, SLOT(logMsg(QString)));
+}
 
 MainWindow::~MainWindow()
 {
@@ -75,7 +76,7 @@ void MainWindow::on_actionExit_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::information(this, QString("About"), "fpCalc by: MKozuch");
+    QMessageBox::about(this, QString("About"), "fpCalc by: MKozuch");
 }
 
 void MainWindow::on_updateDisplay(float num)
@@ -97,4 +98,18 @@ void MainWindow::on_medianBtn_clicked()
         emit(this->medianListReady(medianDialog->values));
     }
     delete medianDialog;
+}
+
+void MainWindow::on_actionHelp_triggered()
+{
+     QMessageBox::information(this, QString("Help"), "To perform mathematical operation first enter left operand "
+                                                     "and select desired operation, then enter the second operand "
+                                                     "and press '=' button.\n"
+                                                     "For unary operations first enter operand, then select operation."
+                                                     "Every operation since startup is stored in appropriate logfile in 'log' subdirectory");
+}
+
+void MainWindow::on_actionOpen_history_triggered()
+{
+    QDesktopServices::openUrl(QUrl(this->logger->getLogUrl()));
 }

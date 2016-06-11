@@ -17,15 +17,11 @@ public:
     ~MedianInputDialog();
     QList<double> values;
 
-
 private:
     Ui::MedianInputDialog *ui;
 
 private slots:
     void on_acceptBtn_clicked();
-
-signals:
-
 };
 
 #endif // MEDIANINPUTDIALOG_H
